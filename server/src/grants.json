@@ -60,12 +60,6 @@
     "attributes": "*"
   },
   {
-    "role": "admin",
-    "resource": "Order",
-    "action": "read:own",
-    "attributes": "*"
-  },
-  {
     "role": "user",
     "resource": "Order",
     "action": "create:any",
