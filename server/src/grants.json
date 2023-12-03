@@ -117,7 +117,7 @@
     "role": "admin",
     "resource": "Customer",
     "action": "read:own",
-    "attributes": "*,!orders,!phone,!email"
+    "attributes": "*"
   },
   {
     "role": "user",
