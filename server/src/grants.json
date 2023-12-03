@@ -60,12 +60,6 @@
     "attributes": "*"
   },
   {
-    "role": "user",
-    "resource": "Order",
-    "action": "read:own",
-    "attributes": "*"
-  },
-  {
     "role": "admin",
     "resource": "Order",
     "action": "read:own",
@@ -120,16 +114,16 @@
     "attributes": "*"
   },
   {
-    "role": "user",
-    "resource": "Customer",
-    "action": "read:own",
-    "attributes": "*"
-  },
-  {
     "role": "admin",
     "resource": "Customer",
     "action": "read:own",
-    "attributes": "*"
+    "attributes": "*,!orders,!phone,!email"
+  },
+  {
+    "role": "user",
+    "resource": "Customer",
+    "action": "read:own",
+    "attributes": "*,!phone,!email"
   },
   {
     "role": "user",
