@@ -19,13 +19,13 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as common from "@nestjs/common";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { Customer } from "./Customer";
-import { CustomerCountArgs } from "./CustomerCountArgs";
-import { CustomerFindManyArgs } from "./CustomerFindManyArgs";
-import { CustomerFindUniqueArgs } from "./CustomerFindUniqueArgs";
 import { CreateCustomerArgs } from "./CreateCustomerArgs";
 import { UpdateCustomerArgs } from "./UpdateCustomerArgs";
 import { DeleteCustomerArgs } from "./DeleteCustomerArgs";
+import { CustomerCountArgs } from "./CustomerCountArgs";
+import { CustomerFindManyArgs } from "./CustomerFindManyArgs";
+import { CustomerFindUniqueArgs } from "./CustomerFindUniqueArgs";
+import { Customer } from "./Customer";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { Address } from "../../address/base/Address";
@@ -63,7 +63,7 @@ export class CustomerResolverBase {
   async customers(
     @graphql.Args() args: CustomerFindManyArgs
   ): Promise<Customer[]> {
-    return this.service.customers(args);
+    return this.service.findMany(args);
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
@@ -76,7 +76,7 @@ export class CustomerResolverBase {
   async customer(
     @graphql.Args() args: CustomerFindUniqueArgs
   ): Promise<Customer | null> {
-    const result = await this.service.customer(args);
+    const result = await this.service.findOne(args);
     if (result === null) {
       return null;
     }
@@ -93,7 +93,7 @@ export class CustomerResolverBase {
   async createCustomer(
     @graphql.Args() args: CreateCustomerArgs
   ): Promise<Customer> {
-    return await this.service.createCustomer({
+    return await this.service.create({
       ...args,
       data: {
         ...args.data,
@@ -118,7 +118,7 @@ export class CustomerResolverBase {
     @graphql.Args() args: UpdateCustomerArgs
   ): Promise<Customer | null> {
     try {
-      return await this.service.updateCustomer({
+      return await this.service.update({
         ...args,
         data: {
           ...args.data,
@@ -150,7 +150,7 @@ export class CustomerResolverBase {
     @graphql.Args() args: DeleteCustomerArgs
   ): Promise<Customer | null> {
     try {
-      return await this.service.deleteCustomer(args);
+      return await this.service.delete(args);
     } catch (error) {
       if (isRecordNotFoundError(error)) {
         throw new GraphQLError(
@@ -168,7 +168,7 @@ export class CustomerResolverBase {
     action: "read",
     possession: "any",
   })
-  async findOrders(
+  async resolveFieldOrders(
     @graphql.Parent() parent: Customer,
     @graphql.Args() args: OrderFindManyArgs
   ): Promise<Order[]> {
@@ -191,7 +191,7 @@ export class CustomerResolverBase {
     action: "read",
     possession: "any",
   })
-  async getAddress(
+  async resolveFieldAddress(
     @graphql.Parent() parent: Customer
   ): Promise<Address | null> {
     const result = await this.service.getAddress(parent.id);

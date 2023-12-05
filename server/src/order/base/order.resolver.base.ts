@@ -19,13 +19,13 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as common from "@nestjs/common";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { Order } from "./Order";
-import { OrderCountArgs } from "./OrderCountArgs";
-import { OrderFindManyArgs } from "./OrderFindManyArgs";
-import { OrderFindUniqueArgs } from "./OrderFindUniqueArgs";
 import { CreateOrderArgs } from "./CreateOrderArgs";
 import { UpdateOrderArgs } from "./UpdateOrderArgs";
 import { DeleteOrderArgs } from "./DeleteOrderArgs";
+import { OrderCountArgs } from "./OrderCountArgs";
+import { OrderFindManyArgs } from "./OrderFindManyArgs";
+import { OrderFindUniqueArgs } from "./OrderFindUniqueArgs";
+import { Order } from "./Order";
 import { Customer } from "../../customer/base/Customer";
 import { Product } from "../../product/base/Product";
 import { OrderService } from "../order.service";
@@ -60,7 +60,7 @@ export class OrderResolverBase {
     possession: "any",
   })
   async orders(@graphql.Args() args: OrderFindManyArgs): Promise<Order[]> {
-    return this.service.orders(args);
+    return this.service.findMany(args);
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
@@ -73,7 +73,7 @@ export class OrderResolverBase {
   async order(
     @graphql.Args() args: OrderFindUniqueArgs
   ): Promise<Order | null> {
-    const result = await this.service.order(args);
+    const result = await this.service.findOne(args);
     if (result === null) {
       return null;
     }
@@ -88,7 +88,7 @@ export class OrderResolverBase {
     possession: "any",
   })
   async createOrder(@graphql.Args() args: CreateOrderArgs): Promise<Order> {
-    return await this.service.createOrder({
+    return await this.service.create({
       ...args,
       data: {
         ...args.data,
@@ -119,7 +119,7 @@ export class OrderResolverBase {
     @graphql.Args() args: UpdateOrderArgs
   ): Promise<Order | null> {
     try {
-      return await this.service.updateOrder({
+      return await this.service.update({
         ...args,
         data: {
           ...args.data,
@@ -157,7 +157,7 @@ export class OrderResolverBase {
     @graphql.Args() args: DeleteOrderArgs
   ): Promise<Order | null> {
     try {
-      return await this.service.deleteOrder(args);
+      return await this.service.delete(args);
     } catch (error) {
       if (isRecordNotFoundError(error)) {
         throw new GraphQLError(
@@ -178,7 +178,9 @@ export class OrderResolverBase {
     action: "read",
     possession: "any",
   })
-  async getCustomer(@graphql.Parent() parent: Order): Promise<Customer | null> {
+  async resolveFieldCustomer(
+    @graphql.Parent() parent: Order
+  ): Promise<Customer | null> {
     const result = await this.service.getCustomer(parent.id);
 
     if (!result) {
@@ -197,7 +199,9 @@ export class OrderResolverBase {
     action: "read",
     possession: "any",
   })
-  async getProduct(@graphql.Parent() parent: Order): Promise<Product | null> {
+  async resolveFieldProduct(
+    @graphql.Parent() parent: Order
+  ): Promise<Product | null> {
     const result = await this.service.getProduct(parent.id);
 
     if (!result) {
